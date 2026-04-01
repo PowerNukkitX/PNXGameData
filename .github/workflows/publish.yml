@@ -1,0 +1,56 @@
+name: Gamedata Publish
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    name: Build & Publish Gamedata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v2
+
+      - name: Determine if commit should trigger publish
+        id: check_commit
+        run: |
+          LAST_MSG=$(git log -1 --pretty=%B)
+          echo "Last commit message: $LAST_MSG"
+          if [[ "$LAST_MSG" == "[B]"* ]]; then
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build & Publish to PNX
+        if: steps.check_commit.outputs.should_publish == 'true' || github.event_name == 'workflow_dispatch'
+        run: ./gradlew publish --no-configuration-cache
+        env:
+          PNX_REPO_USERNAME: ${{ secrets.PNX_REPO_USERNAME }}
+          PNX_REPO_PASSWORD: ${{ secrets.PNX_REPO_PASSWORD }}
+
+      - name: Upload Gamedata artifact
+        if: success() && (steps.check_commit.outputs.should_publish == 'true' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamedata
+          path: build/libs/*.jar
