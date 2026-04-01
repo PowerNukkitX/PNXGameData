@@ -24,7 +24,7 @@ java {
 
 tasks.processResources {
     // Ignore duplicate files with the same path
-    duplicatesStrategy = DuplicatesStrategy.WARN
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // Optional: clean target folder
