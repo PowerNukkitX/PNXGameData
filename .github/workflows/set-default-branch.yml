@@ -1,0 +1,23 @@
+name: Set Default Branch
+
+on:
+  create:
+  push:
+    branches:
+      - 'r/**'
+
+jobs:
+  set-default:
+    name: Set pushed branch as default
+    if: startsWith(github.ref_name, 'r/')
+    runs-on: ubuntu-latest
+    permissions:
+      administration: write
+    steps:
+      - name: Set default branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "Setting default branch to $BRANCH"
+          gh api -X PATCH "repos/${{ github.repository }}" -f default_branch="$BRANCH"
