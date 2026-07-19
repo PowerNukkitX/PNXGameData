@@ -5,7 +5,6 @@ plugins {
 
 group = "org.powernukkitx"
 
-// Dynamically compute version from Git branch
 val branchName: String = try {
     val proc = "git rev-parse --abbrev-ref HEAD".runCommand(rootDir)
     proc.trim().replace("/", "-")
@@ -14,20 +13,15 @@ val branchName: String = try {
 }
 version = "$branchName-SNAPSHOT"
 
-println("Building version: $version")
-
-// Resource-only project
 java {
-    sourceSets["main"].java.setSrcDirs(emptyList<String>()) // no Java sources
+    sourceSets["main"].java.setSrcDirs(emptyList<String>())
     sourceSets["main"].resources.srcDir("src/main/resources")
 }
 
 tasks.processResources {
-    // Ignore duplicate files with the same path
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-// Optional: clean target folder
 tasks.clean {
     delete(buildDir)
 }
@@ -61,7 +55,6 @@ publishing {
     }
 }
 
-// Helper function to run shell commands
 fun String.runCommand(workingDir: File): String {
     val parts = this.split("\\s".toRegex())
     val proc = ProcessBuilder(*parts.toTypedArray())
