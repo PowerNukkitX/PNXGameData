@@ -37,7 +37,7 @@ publishing {
     }
 
     repositories {
-        mavenLocal() // publish to local Maven cache
+        mavenLocal()
 
         // PNX Maven repository
         maven {
