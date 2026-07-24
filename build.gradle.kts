@@ -38,7 +38,6 @@ publishing {
 
     repositories {
         mavenLocal()
-
         // PNX Maven repository
         maven {
             name = "pnx"
